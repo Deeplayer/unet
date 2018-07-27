@@ -88,7 +88,7 @@ X_train *= 2.
 model = unet()
 #model = inception_unet(Adam(2e-4), IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)
 earlystopper = EarlyStopping(patience=5, verbose=1)
-checkpointer = ModelCheckpoint('model-dsbowl2018-2.h5', verbose=1, save_best_only=True)
+checkpointer = ModelCheckpoint('model-dsbowl2018-2.h5', monitor='val_acc', verbose=1, save_best_only=True)
 results = model.fit(X_train, Y_train, validation_split=0.1, batch_size=8, epochs=30,
                     callbacks=[earlystopper, checkpointer], verbose=2)
 
