@@ -35,8 +35,8 @@ from InceptionUnet import inception_unet
 IMG_WIDTH = 128
 IMG_HEIGHT = 128
 IMG_CHANNELS = 3
-TRAIN_PATH = 'F:/DCB2018/train/'
-TEST_PATH = 'F:/DCB2018/stage1_test/'
+TRAIN_PATH = '../unet/train/'
+TEST_PATH = '../unet/stage1_test/'
 
 
 # Get train and test IDs (folder name)
@@ -45,7 +45,6 @@ train_ids = next(os.walk(TRAIN_PATH))[1]
 # print(len(train_ids), len(test_ids))
 print(train_ids)
 
-''' np.squeeze(): 从数组的形状中删除单维度条目，即把shape中为1的维度去掉 '''
 
 # Get and resize train images and masks
 X_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.float32)
@@ -86,8 +85,8 @@ X_train *= 2.
 
 
 ''' Fit model '''
-#model = unet()
-model = inception_unet(Adam(2e-4), IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)
+model = unet()
+#model = inception_unet(Adam(2e-4), IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)
 earlystopper = EarlyStopping(patience=5, verbose=1)
 checkpointer = ModelCheckpoint('model-dsbowl2018-2.h5', verbose=1, save_best_only=True)
 results = model.fit(X_train, Y_train, validation_split=0.1, batch_size=8, epochs=30,
