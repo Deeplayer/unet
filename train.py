@@ -22,8 +22,8 @@ from InceptionUnet import inception_resnet_v2_fpn
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
 IMG_CHANNELS = 3
-TRAIN_PATH = 'F:/DCB2018/train/'
-TEST_PATH = 'F:/DCB2018/stage1_test/'
+TRAIN_PATH = '../unet/train/'
+TEST_PATH = '../unet/stage1_test/'
 
 
 # Get train and test IDs (folder name)
