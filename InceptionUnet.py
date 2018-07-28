@@ -21,7 +21,7 @@ def dice_coef_loss(y_true, y_pred):
 
 def BNConvolution2D(filters, ks=(1, 1), strides=(1, 1), padding='same'):
     def f(_input):
-        conv = Conv2D(filters=filters, kernel_size=ks, strides=strides, padding=padding)(_input)
+        conv = Conv2D(filters=filters, kernel_size=ks, strides=strides, padding=padding, kernel_initializer='he_normal')(_input)
         norm = BatchNormalization(momentum=0.99, epsilon=0.001, center=True, scale=True)(conv)
         return ELU()(norm)
 
@@ -40,11 +40,11 @@ def reduction_a(inputs, k=64, l=64, m=96, n=96):
     # c1
     pool1 = MaxPooling2D((3, 3), strides=(2, 2), padding='same')(inputs_norm)
     # c2
-    conv2 = Conv2D(n, (3, 3), strides=(2, 2), padding='same', dilation_rate=(2, 2))(inputs_norm)
+    conv2 = Conv2D(n, (3, 3), kernel_initializer='he_normal', strides=(2, 2), padding='same', dilation_rate=(2, 2))(inputs_norm)
     # c3
     conv3_1 = BNConvolution2D(k, (1, 1), strides=(1, 1), padding='same')(inputs_norm)
     conv3_2 = BNConvolution2D(l, (3, 3), strides=(1, 1), padding='same')(conv3_1)
-    conv3_2 = Conv2D(m, (3, 3), strides=(2, 2), padding='same', dilation_rate=(2, 2))(conv3_2)
+    conv3_2 = Conv2D(m, (3, 3), kernel_initializer='he_normal', strides=(2, 2), padding='same', dilation_rate=(2, 2))(conv3_2)
 
     res = concatenate([pool1, conv2, conv3_2], axis=1)
 
@@ -58,14 +58,14 @@ def reduction_b(inputs):
     pool1 = MaxPooling2D((3, 3), strides=(2, 2), padding='same')(inputs_norm)
     # c2
     conv2_1 = BNConvolution2D(64, (1, 1), strides=(1, 1), padding='same')(inputs_norm)
-    conv2_2 = Conv2D(96, (3, 3), strides=(2, 2), padding='same', dilation_rate=(2, 2))(conv2_1)
+    conv2_2 = Conv2D(96, (3, 3), kernel_initializer='he_normal', strides=(2, 2), padding='same', dilation_rate=(2, 2))(conv2_1)
     # c3
     conv3_1 = BNConvolution2D(64, (1, 1), strides=(1, 1), padding='same')(inputs_norm)
-    conv3_2 = Conv2D(72, (3, 3), strides=(2, 2), padding='same', dilation_rate=(2, 2))(conv3_1)
+    conv3_2 = Conv2D(72, (3, 3), kernel_initializer='he_normal', strides=(2, 2), padding='same', dilation_rate=(2, 2))(conv3_1)
     # c4
     conv4_1 = BNConvolution2D(64, (1, 1), strides=(1, 1), padding='same')(inputs_norm)
     conv4_2 = BNConvolution2D(72, (3, 3), strides=(1, 1), padding='same')(conv4_1)
-    conv4_3 = Conv2D(80, (3, 3), strides=(2, 2), padding='same', dilation_rate=(2, 2))(conv4_2)
+    conv4_3 = Conv2D(80, (3, 3), kernel_initializer='he_normal', strides=(2, 2), padding='same', dilation_rate=(2, 2))(conv4_2)
     # merge
     res = concatenate([pool1, conv2_2, conv3_2, conv4_3], axis=1)
 
@@ -87,7 +87,7 @@ def _shortcut(_input, residual):
 
 
 def rblock(inputs, num, depth, scale=0.1):
-    residual = Conv2D(depth, (num, num), padding='same', dilation_rate=(2,2))(inputs)
+    residual = Conv2D(depth, (num, num), kernel_initializer='he_normal', padding='same', dilation_rate=(2,2))(inputs)
     residual = BatchNormalization(momentum=0.99, epsilon=0.001, center=True, scale=True)(residual)
     residual = Lambda(lambda x: x*scale)(residual)
     res = _shortcut(inputs, residual)
@@ -98,7 +98,7 @@ def inception_block(inputs, depth, batch_mode, splitted=False, activation='relu'
     assert depth % 16 == 0
     actv = activation == 'relu' and (lambda: LeakyReLU(0.0)) or activation == 'elu' and (lambda: ELU(1.0)) or None
 
-    c1_1 = Conv2D(int(depth / 4), (1, 1), padding='same', dilation_rate=(2, 2))(inputs)
+    c1_1 = Conv2D(int(depth / 4), (1, 1), kernel_initializer='he_normal', padding='same', dilation_rate=(2, 2))(inputs)
 
     c2_1 = Conv2D(int(depth / 8 * 3), (1, 1), kernel_initializer='he_normal', padding='same', dilation_rate=(2, 2))(c1_1)
     c2_1 = actv()(c2_1)
