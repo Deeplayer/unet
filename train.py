@@ -20,11 +20,11 @@ from InceptionUnet import inception_resnet_v2_fpn
 
 
 # Set some parameters
-IMG_WIDTH = 128
-IMG_HEIGHT = 128
+IMG_WIDTH = 256
+IMG_HEIGHT = 256
 IMG_CHANNELS = 3
-TRAIN_PATH = 'F:/DCB2018/train/'
-TEST_PATH = 'F:/DCB2018/stage2_test/'
+TRAIN_PATH = '../unet/train/'
+TEST_PATH = '../unet/stage2_test/'
 
 
 # Get train and test IDs (folder name)
@@ -94,16 +94,16 @@ X_test *= 2.
 
 
 ''' Fit model '''
-# model = unet((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-# #model = inception_resnet_v2_fpn((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-#
-# #model.compile(optimizer=optimizer('adam', lr=1e-4), loss='binary_crossentropy', metrics=[dice_coef])
-# model.compile(optimizer=optimizer('adam', lr=1e-3), loss='binary_crossentropy', metrics=[dice_coef])
-#
-# earlystopper = EarlyStopping(patience=5, verbose=1)
-# checkpointer = ModelCheckpoint('model-dsbowl2018-2.h5', monitor='val_loss', verbose=1, save_best_only=True)
-# results = model.fit(X_train, Y_train, validation_split=0.1, batch_size=8, epochs=30,
-#                     callbacks=[earlystopper, checkpointer], verbose=2)
+#model = unet((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
+model = inception_resnet_v2_fpn((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
+
+model.compile(optimizer=optimizer('adam', lr=1e-4), loss='binary_crossentropy', metrics=[dice_coef])
+#model.compile(optimizer=optimizer('adam', lr=1e-3), loss='binary_crossentropy', metrics=[dice_coef])
+
+earlystopper = EarlyStopping(patience=25, verbose=1)
+checkpointer = ModelCheckpoint('model-dsbowl2018-2.h5', monitor='val_loss', verbose=1, save_best_only=True)
+results = model.fit(X_train, Y_train, validation_split=0.1, batch_size=8, epochs=40,
+                    callbacks=[earlystopper, checkpointer], verbose=2)
 
 
 # Define IoU metric
@@ -121,7 +121,7 @@ def mean_iou(y_true, y_pred):
 
 
 # Predict on train, val and test
-model = load_model('model-dsbowl2018-1.h5', custom_objects={'dice_coef': dice_coef, 'dice_coef_loss':dice_coef_loss})
+model = load_model('model-dsbowl2018-1.h5', custom_objects={'dice_coef': dice_coef})
 # preds_train = model.predict(X_train[:int(X_train.shape[0]*0.9)], verbose=1)
 # preds_val = model.predict(X_train[int(X_train.shape[0]*0.9):], verbose=1)
 preds_test = model.predict(X_test, verbose=1)
@@ -133,12 +133,12 @@ preds_test_t = (preds_test >= 0.5).astype(np.uint8)
 
 
 # Perform a sanity check on some random validation samples
-ix = random.randint(0, len(preds_test_t))
-plt.subplot(121)
-plt.imshow(X_test[ix])
-plt.subplot(122)
-plt.imshow(np.squeeze(preds_test_t[ix]))
-plt.show()
+# ix = random.randint(0, len(preds_test_t))
+# plt.subplot(121)
+# plt.imshow(X_test[ix])
+# plt.subplot(122)
+# plt.imshow(np.squeeze(preds_test_t[ix]))
+# plt.show()
 
 
 # Create list of upsampled test masks
